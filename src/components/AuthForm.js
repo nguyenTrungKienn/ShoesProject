@@ -9,7 +9,7 @@ function AuthForm({ onLoginSuccess }) {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:5000/register', {
+      const response = await fetch('https://shoes-app-ksu3.onrender.com/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
@@ -25,7 +25,7 @@ function AuthForm({ onLoginSuccess }) {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:5000/login', {
+      const response = await fetch('https://shoes-app-ksu3.onrender.com/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -52,7 +52,6 @@ function AuthForm({ onLoginSuccess }) {
               Register / Login
             </h3>
             <form onSubmit={handleRegister}>
-              {/* Username Input */}
               <div className="mb-3">
                 <label htmlFor="username" className="form-label text-gray-600">
                   Username
@@ -67,7 +66,6 @@ function AuthForm({ onLoginSuccess }) {
                 />
               </div>
 
-              {/* Password Input */}
               <div className="mb-4">
                 <label htmlFor="password" className="form-label text-gray-600">
                   Password

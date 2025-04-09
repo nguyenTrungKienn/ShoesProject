@@ -1,136 +1,135 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
-function UpdateShoes({ token, shoeId, onUpdateSuccess }) {
-  const [name, setName] = useState('');
-  const [price, setPrice] = useState('');
-  const [type, setType] = useState('');
-  const [color, setColor] = useState('');
-  const [attribute, setAttribute] = useState('');
-  const [message, setMessage] = useState('');
+function UpdateShoes({ token, shoe, onUpdateSuccess, onCancel }) {
+  const [editShoe, setEditShoe] = useState({
+    name: shoe.name,
+    image: shoe.image,
+    price: shoe.price,
+    type: shoe.type,
+    color: shoe.color,
+    attribute: shoe.attribute,
+  });
+  const [error, setError] = useState('');
 
-  // Lấy thông tin sản phẩm hiện tại
-  useEffect(() => {
-    const fetchShoeDetails = async () => {
-      try {
-        const response = await fetch(`http://localhost:5000/shoes/${shoeId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          credentials: 'include',
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch shoe details');
-        }
-
-        const data = await response.json();
-        setName(data.name);
-        setPrice(data.price);
-        setType(data.type);
-        setColor(data.color);
-        setAttribute(data.attribute);
-      } catch (error) {
-        console.error('Error fetching shoe details:', error);
-        setMessage('Error fetching shoe details');
-      }
-    };
-
-    fetchShoeDetails();
-  }, [shoeId, token]);
-
-  // Hàm xử lý cập nhật sản phẩm
   const handleUpdateShoe = async (e) => {
     e.preventDefault();
-
     try {
-      const response = await fetch(`http://localhost:5000/shoes/${shoeId}`, {
+      const response = await fetch(`https://shoes-app-ksu3.onrender.com/shoes/${shoe._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ name, price, type, color, attribute }),
+        credentials: 'include',
+        body: JSON.stringify(editShoe),
       });
-
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to update shoe');
+      if (data.shoe) {
+        onUpdateSuccess(data.shoe);
+        setError('');
+      } else {
+        setError(data.error);
       }
-
-      setMessage('Shoe updated successfully');
-
-      if (onUpdateSuccess) {
-        onUpdateSuccess(); // Gọi callback để làm mới danh sách giày
-      }
-    } catch (error) {
-      console.error('Error updating shoe:', error);
-      setMessage(error.message || 'Error updating shoe');
+    } catch (err) {
+      setError('Error updating shoe');
     }
   };
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditShoe((prev) => ({ ...prev, [name]: value }));
+  };
+
   return (
-    <div className="container mt-5">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">Update Shoe</h2>
+    <div className="card shadow-lg p-4 mb-4 bg-white rounded-lg">
+      <h3 className="text-lg font-bold mb-3">Edit Shoe</h3>
+      {error && <p className="text-red-500 mb-3">{error}</p>}
       <form onSubmit={handleUpdateShoe}>
         <div className="mb-3">
-          <label htmlFor="name" className="form-label">Name</label>
+          <label className="form-label text-gray-600">ID</label>
           <input
             type="text"
-            id="name"
             className="form-control"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={shoe.id}
+            readOnly
+          />
+        </div>
+        <div className="mb-3">
+          <label className="form-label text-gray-600">Name</label>
+          <input
+            type="text"
+            name="name"
+            className="form-control"
+            value={editShoe.name}
+            onChange={handleInputChange}
             required
           />
         </div>
         <div className="mb-3">
-          <label htmlFor="price" className="form-label">Price</label>
+          <label className="form-label text-gray-600">Image URL</label>
+          <input
+            type="text"
+            name="image"
+            className="form-control"
+            value={editShoe.image}
+            onChange={handleInputChange}
+          />
+        </div>
+        <div className="mb-3">
+          <label className="form-label text-gray-600">Price</label>
           <input
             type="number"
-            id="price"
+            name="price"
             className="form-control"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
+            value={editShoe.price}
+            onChange={handleInputChange}
             required
           />
         </div>
         <div className="mb-3">
-          <label htmlFor="type" className="form-label">Type</label>
+          <label className="form-label text-gray-600">Type</label>
           <input
             type="text"
-            id="type"
+            name="type"
             className="form-control"
-            value={type}
-            onChange={(e) => setType(e.target.value)}
-            required
+            value={editShoe.type}
+            onChange={handleInputChange}
           />
         </div>
         <div className="mb-3">
-          <label htmlFor="color" className="form-label">Color</label>
+          <label className="form-label text-gray-600">Color</label>
           <input
             type="text"
-            id="color"
+            name="color"
             className="form-control"
-            value={color}
-            onChange={(e) => setColor(e.target.value)}
-            required
+            value={editShoe.color}
+            onChange={handleInputChange}
           />
         </div>
         <div className="mb-3">
-          <label htmlFor="attribute" className="form-label">Attribute</label>
+          <label className="form-label text-gray-600">Attribute</label>
           <input
             type="text"
-            id="attribute"
+            name="attribute"
             className="form-control"
-            value={attribute}
-            onChange={(e) => setAttribute(e.target.value)}
-            required
+            value={editShoe.attribute}
+            onChange={handleInputChange}
           />
         </div>
-        <button type="submit" className="btn btn-primary">Update Shoe</button>
+        <button
+          type="submit"
+          className="btn btn-primary mr-2 hover:bg-blue-600 transition duration-300"
+        >
+          Update Shoe
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="btn btn-secondary hover:bg-gray-600 transition duration-300"
+        >
+          Cancel
+        </button>
       </form>
-      {message && <p className="mt-3">{message}</p>}
     </div>
   );
 }

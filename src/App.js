@@ -1,26 +1,23 @@
 import React, { useState } from 'react';
 import AuthForm from './components/AuthForm';
 import ShoesList from './components/ShoesList';
-import AddShoe from './components/AddShoe'; // Import component thêm giày
-import UpdateShoes from './components/UpdateShoes';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
   const [token, setToken] = useState(null);
   const [message, setMessage] = useState('');
-  const [view, setView] = useState('list'); // 'list' hoặc 'add'
-  const [selectedShoeId, setSelectedShoeId] = useState(null); // Lưu ID sản phẩm được chọn
-  
 
+  // Callback khi đăng nhập thành công
   const handleLoginSuccess = (newToken) => {
     setToken(newToken);
   };
 
+  // Đăng xuất
   const handleLogout = async () => {
     try {
-      const response = await fetch('http://localhost:5000/logout', {
+      const response = await fetch('https://shoes-app-ksu3.onrender.com/logout', {
         method: 'POST',
-        credentials: 'include',
+        credentials: 'include', // Gửi cookie
       });
       const data = await response.json();
       setToken(null);
@@ -28,35 +25,6 @@ function App() {
     } catch (error) {
       setMessage('Error logging out');
     }
-  };
-
-  const handleShowToken = async () => {
-    try {
-      const response = await fetch('http://localhost:5000/shoes', {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch token');
-      }
-
-      const data = await response.json();
-      alert(`Token: ${token}`);
-    } catch (error) {
-      console.error('Error fetching token:', error);
-      alert('Error fetching token');
-    }
-  };
-
-  const handleShoeAdded = () => {
-    setView('list'); // Sau khi thêm giày xong, quay lại danh sách
-  };
-  const handleShoeUpdated = () => {
-    setView('list'); // Quay lại danh sách sau khi cập nhật
   };
 
   return (
@@ -67,27 +35,8 @@ function App() {
           <AuthForm onLoginSuccess={handleLoginSuccess} />
         ) : (
           <div>
-            <button onClick={handleLogout} className="btn btn-danger mb-2">Logout</button>
-            <button onClick={() => setView('list')} className="btn btn-outline-primary mb-2 mx-1">View List</button>
-            <button onClick={() => setView('add')} className="btn btn-outline-success mb-2 mx-1">Add Shoe</button>
-
-            {view === 'list' && (
-              <ShoesList
-                token={token}
-                onEdit={(id) => {
-                  setSelectedShoeId(id);
-                  setView('update');
-                }}
-              />
-            )}
-            {view === 'add' && <AddShoe token={token} onShoeAdded={handleShoeAdded} />}
-            {view === 'update' && (
-              <UpdateShoes
-                token={token}
-                shoeId={selectedShoeId}
-                onUpdateSuccess={handleShoeUpdated}
-              />
-            )}
+            <button onClick={handleLogout}>Logout</button>
+            <ShoesList token={token} />
           </div>
         )}
       </header>
