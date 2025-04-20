@@ -1,43 +1,45 @@
 import React, { useState } from 'react';
-import AuthForm from './components/AuthForm';
-import ShoesList from './components/ShoesList';
+import Login from './components/Login';
+import Register from './components/Register';
+import Home from './components/Home';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
   const [token, setToken] = useState(null);
-  const [message, setMessage] = useState('');
+  const [showLogin, setShowLogin] = useState(true);
 
-  // Callback khi đăng nhập thành công
   const handleLoginSuccess = (newToken) => {
     setToken(newToken);
   };
 
-  // Đăng xuất
   const handleLogout = async () => {
     try {
-      const response = await fetch('https://shoes-app-ksu3.onrender.com/logout', {
+      const response = await fetch('https://project-shoes-app.onrender.com/logout', {
         method: 'POST',
-        credentials: 'include', // Gửi cookie
+        credentials: 'include',
       });
       const data = await response.json();
       setToken(null);
-      setMessage(data.message);
+      alert(data.message || 'Logged out successfully');
     } catch (error) {
-      setMessage('Error logging out');
+      alert('Error logging out');
     }
   };
 
   return (
     <div className="App">
       <header className="App-header">
-        <h1>Shoes App</h1>
         {!token ? (
-          <AuthForm onLoginSuccess={handleLoginSuccess} />
+          showLogin ? (
+            <Login onLoginSuccess={handleLoginSuccess} setShowLogin={setShowLogin} />
+          ) : (
+            <Register setShowLogin={setShowLogin} />
+          )
         ) : (
-          <div>
-            <button onClick={handleLogout}>Logout</button>
-            <ShoesList token={token} />
-          </div>
+          <>
+            <h1 className="text-4xl font-bold text-center my-6">Shoes App</h1>
+            <Home token={token} onLogout={handleLogout} />
+          </>
         )}
       </header>
     </div>
